@@ -1,0 +1,19 @@
+{
+    "name": "jalno/profile",
+    "description": "User additional profile fields",
+    "autoload": {
+        "psr-4": {
+            "Jalno\\Profile\\": "src"
+        }
+    },
+    "require": {
+        "jalno/userpanel": "dev-master",
+        "jalno/storage": "^1.0.0",
+        "jalno/validators": "dev-master"
+    },
+    "extra": {
+        "jalno": {
+            "package": "Jalno\\Profile\\Package"
+        }
+    }
+}
