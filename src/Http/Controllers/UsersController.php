@@ -26,11 +26,17 @@ class UsersController extends Controller
         return $this->findByID($request, $request->user()->id);
     }
 
+    /**
+     * @param int|string $id
+     */
     public function findByID(Request $request, $id): Response
     {
+        if (!is_numeric($id)) {
+            throw new NotFoundHttpException();
+        }
         $this->api->forUser($request->user());
 
-        $profile = $this->api->find($id);
+        $profile = $this->api->find((int) $id);
         if (!$profile) {
             throw new NotFoundHttpException();
         }
@@ -41,11 +47,17 @@ class UsersController extends Controller
         ));
     }
 
+    /**
+     * @param int|string $id
+     */
     public function edit(Request $request, $id): Response
     {
+        if (!is_numeric($id)) {
+            throw new NotFoundHttpException();
+        }
         $this->api->forUser($request->user());
 
-        $profile = $this->api->edit(array_merge(["user" => $id], $request->all()));
+        $profile = $this->api->edit((int) $id, $request->all());
 
         return response(array(
             "status" => true,
@@ -53,11 +65,17 @@ class UsersController extends Controller
         ));
     }
 
+    /**
+     * @param int|string $id
+     */
     public function delete(Request $request, $id): Response
     {
+        if (!is_numeric($id)) {
+            throw new NotFoundHttpException();
+        }
         $this->api->forUser($request->user());
 
-        $this->api->delete($id);
+        $this->api->delete((int) $id);
 
         return response(["status" => true]);
     }

@@ -11,6 +11,16 @@
         "jalno/storage": "^1.0.0",
         "jalno/validators": "dev-master"
     },
+    "require-dev": {
+        "nunomaduro/larastan": "^0.7.6",
+        "orchestra/testbench": "^6.18.0"
+    },
+    "scripts": {
+        "test:types": "./vendor/phpstan/phpstan/phpstan analyse",
+        "test": [
+            "@test:types"
+        ]
+    },
     "extra": {
         "jalno": {
             "package": "Jalno\\Profile\\Package"

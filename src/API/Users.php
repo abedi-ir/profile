@@ -6,7 +6,11 @@ use Jalno\Userpanel\Models\{Log, User};
 use Jalno\Profile\Models\User as Profile;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
+/**
+ * @phpstan-type ProfileUpdateParameters array{"name"?:string,"lastname"?:string,"phone":string,"city"?:string,"address"?:string,"web"?:string,"social_networks"?:array<string,string>}
+ */
 class Users extends API\API
 {
 
@@ -18,7 +22,7 @@ class Users extends API\API
     }
 
     /**
-     * @param int|array $parameters
+     * @param int|array<string,mixed> $parameters
      */
     public function find($parameters): ?Profile
     {
@@ -27,26 +31,26 @@ class Users extends API\API
     }
 
     /**
-     * @param array $parameters
+     * @param int|array<string,mixed> $parameters
      */
-    public function edit(array $parameters): Profile
+    public function edit(int $id, $parameters): Profile
     {
         $this->requireAbility("profile_edit");
         $this->api->forUser($this->user());
 
-        $user = $this->api->find($parameters['user']);
+        $user = $this->api->find($id);
         if (!$user) {
-            $exception = new ModelNotFoundException();
-            $exception->setModel(User::class, $parameters["user"]);
-            throw $exception;
+            throw (new ModelNotFoundException())->setModel(User::class, $id);
         }
-        unset($parameters['user']);
 
+        /**
+         * @var ProfileUpdateParameters $parameters
+         */
         return $this->update($parameters, $user);
     }
 
     /**
-     * @param int[]|int $parameters
+     * @param int|array<string,mixed> $parameters
      */
     public function delete($parameters): void
     {
@@ -76,7 +80,7 @@ class Users extends API\API
 
         } while($paginator->hasMorePages());
 
-        if (!empty($logParameters["old"])) {
+        if (!empty($logParameters["old"]) and !is_null($this->user())) {
             $log = new Log();
             $log->user_id = $this->user()->id;
             $log->type = "jalno.profile.logs.delete";
@@ -86,9 +90,9 @@ class Users extends API\API
     }
 
     /**
-     * @param array{"name"?:string,"lastname"?:string,"phone":string,"city"?:string,"address"?:string,"web"?:string,"social_networks"?:array<string,string>} $parameters
+     * @param ProfileUpdateParameters $parameters
      */
-    protected function update(array $parameters, User $user = null): Profile
+    protected function update(array $parameters, User $user): Profile
     {
         $inputs = $parameters;
 
@@ -131,7 +135,7 @@ class Users extends API\API
 
             $path = "users/" . md5_file($parameters["avatar"]->path()) . "." . $parameters["avatar"]->clientExtension();
 
-            if (!$disk->has($path)) {
+            if (!method_exists($disk, "has") or !$disk->has($path)) {
 
                 $moved = $disk->put($path, $parameters["avatar"]->get());
 
@@ -191,7 +195,7 @@ class Users extends API\API
 
         $isEditing = !empty($logParameters["old"]);
 
-        if ($this->user()->id != $user->id) {
+        if (!is_null($this->user()) and $this->user()->id != $user->id) {
             $log = new Log();
             $log->user_id = $this->user()->id;
             $log->type = "jalno.profile.logs." . ($isEditing ? "edit" : "add");
