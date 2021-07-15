@@ -3,6 +3,7 @@ namespace Jalno\Profile\Providers;
 
 use Jalno\Userpanel\Models\User;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Database\Eloquent\Builder;
 use Jalno\Profile\Models\User as Profile;
 
 class ProfileServiceProvider extends ServiceProvider
@@ -25,6 +26,8 @@ class ProfileServiceProvider extends ServiceProvider
 		User::resolveRelationUsing("profile", function(User $user) {
 			return $user->hasOne(Profile::class, "user_id");
 		});
+
+		User::addSearchAttributeToModel("profile");
 	}
 
 	protected function registerMigrations(): void

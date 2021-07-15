@@ -2,7 +2,9 @@
 
 namespace Jalno\Profile\Models;
 
-use Illuminate\Database\Eloquent\{Model, Relations\HasOne};
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Jalno\API\{Contracts\ISearchableModel, Concerns\HasSearchAttributeTrait};
 
 /**
  * @property int $id
@@ -21,44 +23,61 @@ use Illuminate\Database\Eloquent\{Model, Relations\HasOne};
  * @property string|null $updated_at
  */
 
-class User extends Model
+class User extends Model implements ISearchableModel
 {
-	/**
-	 * The table associated with the model.
-	 *
-	 * @var string $table
-	 */
-	protected $table = 'profile_users';
+    use HasSearchAttributeTrait;
 
-	/**
-	 * The attributes that are mass assignable.
-	 *
-	 * @var string[] $fillable
-	 */
-	protected $fillable = [];
+    /**
+     * The table associated with the model.
+     *
+     * @var string $table
+     */
+    protected $table = 'profile_users';
 
-	/**
-	 * The model's default values for attributes.
-	 *
-	 * @var array<string,mixed> $attributes
-	 */
-	protected $attributes = [];
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var string[] $fillable
+     */
+    protected $fillable = [];
 
-	/**
-	 * The attributes excluded from the model's JSON form.
-	 *
-	 * @var string[] $hidden
-	 */
-	protected $hidden = [];
+    /**
+     * The model's default values for attributes.
+     *
+     * @var array<string,mixed> $attributes
+     */
+    protected $attributes = [];
+
+    /**
+     * The attributes excluded from the model's JSON form.
+     *
+     * @var string[] $hidden
+     */
+    protected $hidden = [];
 
     /**
      * The attributes that should be cast.
      *
      * @var array<string,string> $casts
      */
-	protected $casts = [
-		"social_networks" => "array",
-	];
+    protected $casts = [
+        "social_networks" => "array",
+    ];
+
+    /**
+     * @var string[]
+     */
+    protected array $searchAttributes = [
+        "id",
+        "name",
+        "lastname",
+        "cellphone",
+        "email",
+        "phone",
+        "city",
+        "address",
+        "web",
+    ];
 
     public function user(): HasOne
     {
